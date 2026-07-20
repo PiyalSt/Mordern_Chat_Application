@@ -1,21 +1,41 @@
 import { TextField } from "@mui/material";
 import React, { useState } from "react";
 import CommonButtons from "../components/CommonButtons";
+import { ToastContainer, toast } from "react-toastify";
 
 const Registration = () => {
   const [user, setUser] = useState('')
   const [userError, setUserError] = useState(false)
   const [email, setEmail] = useState('')
+  const [emailError, setEmailError] = useState(false)
   const [password, setPassword] = useState('')
+  const [passwordError, setPasswordError] = useState(false)
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [confirmPasswordError, setConfirmPasswordError] = useState(false)
 
   const registrationValidation = () => {
     if(!user) {
-      console.log('Please enter name');
+      toast.error('Please Enter Name')
       setUserError(true)
+      return;
+    }
+    if(!email) {
+      toast.error('Please Enter Email')
+      setEmailError(true)
+      return;
+    }
+    if(!password) {
+      toast.error('Please Enter Password')
+      setPasswordError(true)
+      return;
+    }
+    if(!confirmPassword) {
+      toast.error('Please Enter Password')
+      setConfirmPasswordError(true)
+      return;
     }
 
-    console.log(user)
+    toast.success('Registration Successfully')
   }
 
   return (
@@ -36,20 +56,38 @@ const Registration = () => {
               error={userError}
             />
             <TextField
+              onChange={(e)=> {
+                setEmail(e.target.value)
+                setEmailError(false)
+              }}
               type="email"
               label="Enter Email"
               variant="outlined"
+              error={emailError}
             />
             <TextField
+              onChange={(e)=> {
+                setPassword(e.target.value)
+                setPasswordError(false)
+              }}
               type="password"
               label="Enter Password"
               variant="outlined"
+              error={passwordError}
             />
             <TextField
+              onChange={(e)=> {
+                setConfirmPassword(e.target.value)
+                setConfirmPasswordError(false)
+              }}
               type="password"
               label="Confirm Password"
               variant="outlined"
+              error={confirmPasswordError}
             />
+
+            {/* Toastify Container */}
+            <ToastContainer position="top-right" />
           </div>
           <div className="flex justify-center mt-10">
             <CommonButtons onclick={registrationValidation} text={"Sign Up"} />

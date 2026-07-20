@@ -1,15 +1,28 @@
 import { TextField } from "@mui/material";
 import React, { useState } from "react";
 import CommonButtons from "../components/CommonButtons";
+import { toast, ToastContainer } from "react-toastify";
 
 const Login = () => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState(false);
+  const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState(false);
 
   const loginValidation = () => {
-    console.log(email);
-    
-  }
+    if (!email) {
+      toast.error("Please Enter Email");
+      setEmailError(true);
+      return;
+    }
+    if (!password) {
+      toast.error("Please Enter Password");
+      setPasswordError(true);
+      return;
+    }
+
+    toast.success('Login Successfully')
+  };
 
   return (
     <div className="w-full h-screen bg-primary/10 flex items-center justify-center">
@@ -18,15 +31,29 @@ const Login = () => {
 
         <div className="flex flex-col gap-6 mt-12">
           <TextField
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setEmailError(false);
+            }}
             type="email"
-            label="Enter your email"
-            variant="outlined" />
-          <TextField
-            type="password"
-            label="Enter your password"
+            label="Enter Email"
             variant="outlined"
+            error={emailError}
           />
+          <TextField
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setPasswordError(false);
+            }}
+            type="password"
+            label="Enter Password"
+            variant="outlined"
+            error={passwordError}
+          />
+
+
+          {/* Toastify Container */}
+          <ToastContainer position="top-right" />
         </div>
         <div className="flex justify-center mt-10">
           <CommonButtons onclick={loginValidation} text={"Login"} />
