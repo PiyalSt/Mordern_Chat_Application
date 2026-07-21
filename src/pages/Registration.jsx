@@ -30,12 +30,18 @@ const Registration = () => {
       return;
     }
     if(!confirmPassword) {
-      toast.error('Please Enter Password')
+      toast.error('Please Enter Confirm Password')
       setConfirmPasswordError(true)
       return;
     }
-
+    if (password !== confirmPassword) {
+      toast.error("Password Don't Match")
+      setConfirmPasswordError(true)
+      return;
+    }
+    
     toast.success('Registration Successfully')
+
   }
 
   return (
