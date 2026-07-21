@@ -1,6 +1,6 @@
 import React from "react";
 import assets from "../assets/assets";
-import { SiHomeadvisor } from "react-icons/si";
+import { SiBunnydotnet, SiHomeadvisor } from "react-icons/si";
 import { BsChatDotsFill } from "react-icons/bs";
 
 const Navbar = () => {
@@ -8,8 +8,9 @@ const Navbar = () => {
     <>
       <div className="w-fit h-screen px-8 py-4 bg-primary/10 flex flex-col justify-between items-center">
         <div className="flex flex-col items-center">
-          <div className="w-12">
-            <img src={assets.chat_logo} alt="" />
+          <div className="">
+            {/* <img src={assets.chat_logo} alt="" /> */}
+            <SiBunnydotnet className="text-5xl text-primary/90 cursor-pointer" />
           </div>
           <div className="flex flex-col gap-1 mt-6">
             <div className="p-4 hover:bg-primary/60 rounded-full cursor-pointer transition-all duration-300 group">

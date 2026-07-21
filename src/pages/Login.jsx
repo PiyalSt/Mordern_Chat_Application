@@ -2,8 +2,12 @@ import { TextField } from "@mui/material";
 import React, { useState } from "react";
 import CommonButtons from "../components/CommonButtons";
 import { toast, ToastContainer } from "react-toastify";
+import { Link, useNavigate } from "react-router";
+import { auth } from "../firebase/firebase.config";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState(false);
   const [password, setPassword] = useState("");
@@ -21,7 +25,18 @@ const Login = () => {
       return;
     }
 
-    toast.success('Login Successfully')
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        console.log(userCredential);
+        toast.success("login success");
+        setInterval(() => {
+          navigate("/home");
+        }, 3000);
+      })
+      .catch((error) => {
+        console.log(error.message);
+        toast.error("Invalid Email or Password");
+      });
   };
 
   return (
@@ -51,13 +66,20 @@ const Login = () => {
             error={passwordError}
           />
 
-
           {/* Toastify Container */}
           <ToastContainer position="top-right" />
         </div>
-        <div className="flex justify-center mt-10">
+        <div className="flex justify-center mt-6">
           <CommonButtons onclick={loginValidation} text={"Login"} />
         </div>
+        <p className="text-sm text-center capitalize mt-4">
+          create a new account ?{" "}
+          <Link to={"/registration"}>
+            <span className="hover:underline hover:text-primary cursor-pointer">
+              Sign up
+            </span>
+          </Link>
+        </p>
       </div>
     </div>
   );
