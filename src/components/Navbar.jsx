@@ -1,9 +1,27 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import assets from "../assets/assets";
 import { SiBunnydotnet, SiHomeadvisor } from "react-icons/si";
 import { BsChatDotsFill } from "react-icons/bs";
+import { auth, database } from "../firebase/firebase.config";
+import { onAuthStateChanged } from "firebase/auth";
+import { onValue, ref } from "firebase/database";
 
 const Navbar = () => {
+
+  const [activeUser, setActiveUser] = useState()
+  
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      const userRef = ref(database, "users/" + user.uid)
+      onValue(userRef, (snapshot) => {
+        setActiveUser(snapshot.val())
+      })
+    })
+
+    return unsubscribe;
+  }, [])
+
   return (
     <>
       <div className="w-fit h-screen px-8 py-4 bg-primary/10 flex flex-col justify-between items-center">
@@ -25,8 +43,9 @@ const Navbar = () => {
           <div className="w-12 bg-white p-2 rounded-full cursor-pointer">
             <img src={assets.profile_icon} alt="" />
           </div>
+
           <p className="w-full text-center text-sm text-gray-900 capitalize font-medium">
-            Piyal hasan
+            {activeUser?.username}
           </p>
         </div>
       </div>

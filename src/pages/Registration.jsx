@@ -63,7 +63,7 @@ const Registration = () => {
       .catch((error) => {
         console.log(error.message);
         toast.error(
-          "This email is already linked to an account. Please log in or use a different email address.",
+          "This email is already linked to an account.",
         );
       });
   };
