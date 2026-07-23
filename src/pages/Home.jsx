@@ -5,6 +5,7 @@ import { HiDotsVertical } from "react-icons/hi";
 import UserProfle from "../components/UserProfle";
 import { auth, database } from "../firebase/firebase.config";
 import { onValue, ref } from "firebase/database";
+import SearchBar from "../components/SearchBar";
 
 const Home = () => {
   const [userData, setUserData] = useState([]);
@@ -28,8 +29,11 @@ const Home = () => {
     <>
       <div className="w-full h-screen flex">
         <div className="w-8/12 h-full bg-primary/5 overflow-y-scroll">
-          <div className="w-full min-h-screen border-l-2 border-r-2 border-primary/20">
-            <div className="w-full flex flex-col gap-4 px-3">
+          <div className="w-full min-h-screen border-l-2 border-r-2 border-primary/20 px-4">
+            <div className="w-full my-4">
+              <SearchBar />
+            </div>
+            <div className="w-full flex flex-col gap-4">
               <PostCard />
               <PostCard />
               <PostCard />
@@ -56,9 +60,9 @@ const Home = () => {
               <div className="w-full h-[80%] mt-4 flex flex-col gap-2 overflow-y-scroll">
                 {userData.map((item, index) => (
                   <UserProfle
-                  key={index}
-                  btnText={"Add friend"}
-                  userName={item.username}
+                    key={index}
+                    btnText={"Add friend"}
+                    userName={item.username}
                   />
                 ))}
               </div>

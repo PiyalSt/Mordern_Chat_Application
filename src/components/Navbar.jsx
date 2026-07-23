@@ -32,10 +32,10 @@ const Navbar = () => {
           </div>
           <div className="flex flex-col gap-1 mt-6">
             <div className="p-4 hover:bg-primary/60 rounded-full cursor-pointer transition-all duration-300 group">
-              <SiHomeadvisor className="text-2xl text-gray-800 group-hover:text-white" />
+              <SiHomeadvisor className="text-2xl text-gray-800 group-hover:text-white group-active:scale-90" />
             </div>
             <div className="p-4 hover:bg-primary/60 rounded-full cursor-pointer transition-all duration-300 group">
-              <BsChatDotsFill className="text-2xl text-gray-800 group-hover:text-white" />
+              <BsChatDotsFill className="text-2xl text-gray-800 group-hover:text-white group-active:scale-90" />
             </div>
           </div>
         </div>
