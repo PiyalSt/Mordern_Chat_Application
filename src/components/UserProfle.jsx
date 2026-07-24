@@ -1,7 +1,7 @@
 import React from 'react'
 import assets from '../assets/assets'
 
-const UserProfle = ({userName, btnText}) => {
+const UserProfle = ({ userName, btnText, onclick }) => {
   return (
     <>
       <div className='cursor-pointer flex justify-between py-3 px-2 bg-primary/10 hover:bg-primary/20 transition-all duration-300 rounded-md'>
@@ -14,7 +14,7 @@ const UserProfle = ({userName, btnText}) => {
           </div>
         </div>
         <div className='flex gap-2 items-center'>
-          <button className='px-3 py-1 bg-primary/90 rounded-full text-xs text-gray-100 cursor-pointer'>{btnText}</button>
+          <button onClick={onclick} className='px-3 py-1 bg-primary/90 rounded-full text-xs text-gray-100 cursor-pointer'>{btnText}</button>
           <button className='px-3 py-1 bg-primary/90 rounded-full text-xs text-gray-100 cursor-pointer'>Cencel</button>
         </div>
       </div>

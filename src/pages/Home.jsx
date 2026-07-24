@@ -4,12 +4,12 @@ import PostCard from "../components/PostCard";
 import { HiDotsVertical } from "react-icons/hi";
 import UserProfle from "../components/UserProfle";
 import { auth, database } from "../firebase/firebase.config";
-import { onValue, ref } from "firebase/database";
+import { onValue, push, ref, set } from "firebase/database";
 import SearchBar from "../components/SearchBar";
 
 const Home = () => {
   const [userData, setUserData] = useState([]);
-
+  
   useEffect(() => {
     const userRef = ref(database, "users/");
     onValue(userRef, (snapshot) => {
@@ -24,6 +24,27 @@ const Home = () => {
       setUserData(users);
     });
   }, []);
+
+  const sendRequestHandle = (item) => {
+    const reciverId = item.id
+    const reciverName = item.username
+    const senderId = auth.currentUser.uid
+    let senderName = ''
+    const requestRef = ref(database, 'friendrequestlists')
+    const usersRef = ref(database, 'users')
+
+    onValue(usersRef, (snapshot) => {
+      const data = snapshot.val();
+      senderName = data[senderId].username
+    });
+
+    set(push(requestRef), {
+      reciverid : reciverId,
+      recivername : reciverName,
+      senderid : senderId,
+      sendername : senderName
+    })
+  }
 
   return (
     <>
@@ -60,6 +81,7 @@ const Home = () => {
               <div className="w-full h-[80%] mt-4 flex flex-col gap-2 overflow-y-scroll">
                 {userData.map((item, index) => (
                   <UserProfle
+                    onclick={() => sendRequestHandle(item)}
                     key={index}
                     btnText={"Add friend"}
                     userName={item.username}
