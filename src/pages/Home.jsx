@@ -4,12 +4,13 @@ import PostCard from "../components/PostCard";
 import { HiDotsVertical } from "react-icons/hi";
 import UserProfle from "../components/UserProfle";
 import { auth, database } from "../firebase/firebase.config";
-import { onValue, push, ref, set } from "firebase/database";
+import { get, onValue, push, ref, set } from "firebase/database";
 import SearchBar from "../components/SearchBar";
 
 const Home = () => {
   const [userData, setUserData] = useState([]);
-  
+  const [requestData, setRequestData] = useState([]);
+
   useEffect(() => {
     const userRef = ref(database, "users/");
     onValue(userRef, (snapshot) => {
@@ -25,25 +26,46 @@ const Home = () => {
     });
   }, []);
 
-  const sendRequestHandle = (item) => {
-    const reciverId = item.id
-    const reciverName = item.username
-    const senderId = auth.currentUser.uid
-    let senderName = ''
-    const requestRef = ref(database, 'friendrequestlists')
-    const usersRef = ref(database, 'users')
+  const sendRequestHandle = async (item) => {
+    const requestRef = ref(database, "friendrequestlists");
 
-    onValue(usersRef, (snapshot) => {
-      const data = snapshot.val();
-      senderName = data[senderId].username
-    });
+    const snapshot = await get(
+      ref(database, "users/" + auth.currentUser.uid)
+    );
 
-    set(push(requestRef), {
-      reciverid : reciverId,
-      recivername : reciverName,
-      senderid : senderId,
-      sendername : senderName
-    })
+    if (snapshot.exists()) {
+      const currentUser = snapshot.val();
+
+      await set(push(requestRef), {
+        reciverId: item.id,
+        reciverName: item.userName,
+
+        senderId: currentUser.userId,
+        senderName: currentUser.userName,
+      });
+    }
+  };
+
+  // get data friend request list
+  useEffect(() => {
+  const requestRef = ref(database, "friendrequestlists");
+
+  onValue(requestRef, (snapshot) => {
+    const data = snapshot.val();
+
+    const requests = Object.entries(data || {}).map(([id, request]) => ({
+      id, // push key
+      ...request,
+    }))
+    .filter((request) => request.reciverId === auth.currentUser.uid);
+
+    setRequestData(requests);
+  });
+    }, []);
+
+  // accept frirend request
+  const acceptRequestHandle = () => {
+    
   }
 
   return (
@@ -65,7 +87,8 @@ const Home = () => {
         <div className="w-4/12 h-full bg-primary/10">
           <div className="w-full h-screen px-4 py-4">
             <div className="w-full h-6/12">
-              {/* top friend request accept */}
+
+              {/* Send Friend Request */}
               <div className="flex justify-between items-center pb-4 border-b-2 border-primary/20">
                 <div>
                   <h2 className="text-lg font-medium text-gray-800">
@@ -84,13 +107,14 @@ const Home = () => {
                     onclick={() => sendRequestHandle(item)}
                     key={index}
                     btnText={"Add friend"}
-                    userName={item.username}
+                    userName={item.userName}
                   />
                 ))}
               </div>
             </div>
+
             <div className="w-full h-6/12">
-              {/* bottom send friend request */}
+              {/* Accept Friend Request */}
               <div className="flex justify-between items-center pb-4 border-b-2 border-primary/20 mt-2">
                 <div>
                   <h2 className="text-lg font-medium text-gray-800">
@@ -104,11 +128,14 @@ const Home = () => {
 
               {/* user proflie list */}
               <div className="w-full h-[80%] mt-4 flex flex-col gap-2 overflow-y-scroll">
-                <UserProfle />
-                <UserProfle />
-                <UserProfle />
-                <UserProfle />
-                <UserProfle />
+
+                {requestData.map((item, index) => (
+                  <UserProfle
+                    key={index}
+                    btnText={"Accept"}
+                    userName={item.senderName}
+                  />
+                ))}
               </div>
             </div>
           </div>

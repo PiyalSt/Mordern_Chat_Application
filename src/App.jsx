@@ -4,6 +4,7 @@ import Registration from './pages/Registration'
 import Home from './pages/Home'
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router'
 import RootLayout from './layout/RootLayout'
+import Chat from './pages/Chat'
 
 const App = () => {
 
@@ -14,6 +15,7 @@ const App = () => {
           <Route path='/registration' element={<Registration />}/>
         <Route path='/' element={<RootLayout />}>
           <Route path='home' element={<Home />}/>
+          <Route path='chat' element={<Chat />}/>
         </Route>
       </Route>
     )

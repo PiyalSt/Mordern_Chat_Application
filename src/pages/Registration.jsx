@@ -10,17 +10,17 @@ import { ref, set } from "firebase/database";
 
 const Registration = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState("");
+  const [userName, setUserName] = useState("");
   const [userError, setUserError] = useState(false);
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState(false);
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [confirmPasswordError, setConfirmPasswordError] = useState(false);
+  const [confirmPasswordError, setConfirmPasswordError] = useState(false);``
 
   const registrationValidation = () => {
-    if (!user) {
+    if (!userName) {
       toast.error("Please Enter Name");
       setUserError(true);
       return;
@@ -48,23 +48,23 @@ const Registration = () => {
 
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        console.log(userCredential);
+        const user = userCredential.user        
 
         set(ref(database, "users/" + userCredential.user.uid), {
-          username: user,
+          userId: user.uid,
+          userName: userName,
           email: email,
         });
 
         toast.success("Registration Successfully");
+        
         setInterval(() => {
           navigate("/");
         }, 3000);
       })
       .catch((error) => {
         console.log(error.message);
-        toast.error(
-          "This email is already linked to an account.",
-        );
+        toast.error("This email is already linked.");
       });
   };
 
@@ -77,7 +77,7 @@ const Registration = () => {
           <div className="flex flex-col gap-6 mt-12">
             <TextField
               onChange={(e) => {
-                setUser(e.target.value);
+                setUserName(e.target.value);
                 setUserError(false);
               }}
               type="text"

@@ -27,7 +27,6 @@ const Login = () => {
 
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        console.log(userCredential);
         toast.success("login success");
         setInterval(() => {
           navigate("/home");
