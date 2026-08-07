@@ -11,6 +11,7 @@ import { toast, ToastContainer } from "react-toastify";
 const Home = () => {
   const [allUsers, setAllUsers] = useState([]);
   const [sendRequest, setSendRequest] = useState([]);
+  const [sentRequestsData, setSentRequestsData] = useState([]);
 
   // ============= Get all users ============= //
   useEffect(() => {
@@ -30,23 +31,6 @@ const Home = () => {
 
   // ============= Send friend request ============= //
   const sendRequestHandle = async (item) => {
-    const requestRef = ref(database, "friend_request_list");
-    const snapshot = await get(ref(database, "users/" + auth.currentUser.uid));
-
-    if (snapshot.exists()) {
-      const currentUser = snapshot.val();
-      await set(push(requestRef), {
-        reciverId: item.id,
-        reciverName: item.userName,
-        senderId: currentUser.userId,
-        senderName: currentUser.userName,
-      });
-      toast.success("Send friend request successfully");
-    }
-  };
-  
-  // ============= Cancel friend request ============= //
-  const cancelRequestHandle = async (item) => {
     const requestRef = ref(database, "friend_request_list");
     const snapshot = await get(ref(database, "users/" + auth.currentUser.uid));
 
@@ -91,6 +75,35 @@ const Home = () => {
       });
   };
 
+  // ============= Get send request data list ============= //
+  useEffect(() => {
+    const requestRef = ref(database, "friend_request_list");
+    const unsubscribe = onValue(requestRef, (snapshot) => {
+      let arr = [];
+
+      snapshot.forEach((item) => {
+        if (item.val().senderId === auth.currentUser.uid) {
+          arr.push({
+            id: item.key,
+            ...item.val(),
+          });
+        }
+      });
+      setSentRequestsData(arr);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // ============= Cancel request handle ============= //
+  const cancelRequestHandle = async (item) => {
+    const request = sentRequestsData.find((req) => req.reciverId === item.id);
+
+    if (request) {
+      await remove(ref(database, "friend_request_list/" + request.id));
+      toast.success("Request cancelled");
+    }
+  };
+
   return (
     <>
       <div className="w-full h-screen flex">
@@ -124,14 +137,24 @@ const Home = () => {
 
               {/* // ============= User profile ============= // */}
               <div className="w-full h-[80%] mt-4 flex flex-col gap-2 overflow-y-scroll">
-                {allUsers.map((item, index) => (
-                  <UserProfle
-                    onclick={() => sendRequestHandle(item)}
-                    key={index}
-                    btnText={"Add friend"}
-                    userName={item.userName}
-                  />
-                ))}
+                {allUsers.map((item, index) => {
+                  const isRequested = sentRequestsData.some(
+                    (request) => request.reciverId === item.id,
+                  );
+
+                  return (
+                    <UserProfle
+                      onclick={() =>
+                        isRequested
+                          ? cancelRequestHandle(item)
+                          : sendRequestHandle(item)
+                      }
+                      key={index}
+                      btnText={isRequested ? "Cancel Request" : "Add Friend"}
+                      userName={item.userName}
+                    />
+                  );
+                })}
               </div>
             </div>
 

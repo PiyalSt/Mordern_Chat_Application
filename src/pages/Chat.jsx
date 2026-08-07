@@ -12,10 +12,10 @@ const Chat = () => {
 
   // ============= Get accept friend request list ============= //
   useEffect(() => {
-    let arr = [];
     const unsubscribe = onValue(
       ref(database, "accept_request/"),
       (snapshot) => {
+        let arr = [];
         snapshot.forEach((item) => {
           arr.push({ id: item.key, ...item.val() });
         });
@@ -40,8 +40,8 @@ const Chat = () => {
 
   // ============= Get blocked list ============= //
   useEffect(() => {
-    let arr = [];
     const unsubscribe = onValue(ref(database, "block_list/"), (snapshot) => {
+      let arr = [];
       snapshot.forEach((item) => {
         arr.push({ id: item.key, ...item.val() });
       });
@@ -51,9 +51,13 @@ const Chat = () => {
   }, []);
 
   // ============= Unfriend handle ============= //
-  const unfriendHandle = (item) => {
-    remove(ref(database, "block_list/" + item.id));
-    toast.success("Successfully unfriend");
+  const unfriendHandle = async (item) => {
+    try {
+      await remove(ref(database, "block_list/" + item.id));
+      toast.success("Successfully Unfriend");
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   return (
@@ -126,10 +130,10 @@ const Chat = () => {
 
               {/* // ============= User profile ============= // */}
               <div className="w-full h-[80%] mt-4 flex flex-col gap-2 overflow-y-scroll">
-                {acceptRequest.map((item, index) => (
+                {acceptRequest.map((item) => (
                   <UserProfle
                     onclick={() => blockListHandle(item)}
-                    key={index}
+                    key={item.id}
                     btnText={"Block"}
                     userName={item?.senderName}
                   />
@@ -150,9 +154,9 @@ const Chat = () => {
 
               {/* // ============= User profile ============= // */}
               <div className="w-full h-[80%] mt-4 flex flex-col gap-2 overflow-y-scroll">
-                {blockList.map((item, index) => (
+                {blockList.map((item) => (
                   <UserProfle
-                    key={index}
+                    key={item.id}
                     onclick={() => unfriendHandle(item)}
                     btnText={"Unfriend"}
                     userName={item.senderName}
