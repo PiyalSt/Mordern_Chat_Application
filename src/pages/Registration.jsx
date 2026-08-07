@@ -17,7 +17,8 @@ const Registration = () => {
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [confirmPasswordError, setConfirmPasswordError] = useState(false);``
+  const [confirmPasswordError, setConfirmPasswordError] = useState(false);
+  ``;
 
   const registrationValidation = () => {
     if (!userName) {
@@ -48,7 +49,7 @@ const Registration = () => {
 
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        const user = userCredential.user        
+        const user = userCredential.user;
 
         set(ref(database, "users/" + userCredential.user.uid), {
           userId: user.uid,
@@ -57,7 +58,7 @@ const Registration = () => {
         });
 
         toast.success("Registration Successfully");
-        
+
         setInterval(() => {
           navigate("/");
         }, 3000);

@@ -4,69 +4,92 @@ import PostCard from "../components/PostCard";
 import { HiDotsVertical } from "react-icons/hi";
 import UserProfle from "../components/UserProfle";
 import { auth, database } from "../firebase/firebase.config";
-import { get, onValue, push, ref, set } from "firebase/database";
+import { get, onValue, push, ref, remove, set } from "firebase/database";
 import SearchBar from "../components/SearchBar";
+import { toast, ToastContainer } from "react-toastify";
 
 const Home = () => {
-  const [userData, setUserData] = useState([]);
-  const [requestData, setRequestData] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
+  const [sendRequest, setSendRequest] = useState([]);
 
+  // ============= Get all users ============= //
   useEffect(() => {
     const userRef = ref(database, "users/");
-    onValue(userRef, (snapshot) => {
-      const data = snapshot.val();
+    let arr = [];
 
-      const users = Object.entries(data || {})
-        .map(([id, user]) => ({
-          id,
-          ...user,
-        }))
-        .filter((user) => user.id !== auth.currentUser.uid);
-      setUserData(users);
+    const unsubscribe = onValue(userRef, (snapshot) => {
+      snapshot.forEach((item) => {
+        if (item.val().userId != auth.currentUser?.uid) {
+          arr.push({ id: item.key, ...item.val() });
+          setAllUsers(arr);
+        }
+      });
     });
+    return () => unsubscribe();
   }, []);
 
+  // ============= Send friend request ============= //
   const sendRequestHandle = async (item) => {
-    const requestRef = ref(database, "friendrequestlists");
-
-    const snapshot = await get(
-      ref(database, "users/" + auth.currentUser.uid)
-    );
+    const requestRef = ref(database, "friend_request_list");
+    const snapshot = await get(ref(database, "users/" + auth.currentUser.uid));
 
     if (snapshot.exists()) {
       const currentUser = snapshot.val();
-
       await set(push(requestRef), {
         reciverId: item.id,
         reciverName: item.userName,
-
         senderId: currentUser.userId,
         senderName: currentUser.userName,
       });
+      toast.success("Send friend request successfully");
+    }
+  };
+  
+  // ============= Cancel friend request ============= //
+  const cancelRequestHandle = async (item) => {
+    const requestRef = ref(database, "friend_request_list");
+    const snapshot = await get(ref(database, "users/" + auth.currentUser.uid));
+
+    if (snapshot.exists()) {
+      const currentUser = snapshot.val();
+      await set(push(requestRef), {
+        reciverId: item.id,
+        reciverName: item.userName,
+        senderId: currentUser.userId,
+        senderName: currentUser.userName,
+      });
+      toast.success("Send friend request successfully");
     }
   };
 
-  // get data friend request list
+  // ============= Get friend request list ============= //
   useEffect(() => {
-  const requestRef = ref(database, "friendrequestlists");
+    const requestRef = ref(database, "friend_request_list");
 
-  onValue(requestRef, (snapshot) => {
-    const data = snapshot.val();
+    const unsubscribe = onValue(requestRef, (snapshot) => {
+      let arr = [];
+      snapshot.forEach((item) => {
+        if (item.val().reciverId === auth.currentUser.uid) {
+          arr.push({ id: item.key, ...item.val() });
+          setSendRequest(arr);
+        }
+      });
+    });
+    return () => unsubscribe();
+  }, []);
 
-    const requests = Object.entries(data || {}).map(([id, request]) => ({
-      id, // push key
-      ...request,
-    }))
-    .filter((request) => request.reciverId === auth.currentUser.uid);
-
-    setRequestData(requests);
-  });
-    }, []);
-
-  // accept frirend request
-  const acceptRequestHandle = () => {
-    
-  }
+  // ============= Accept friend request list ============= //
+  const acceptRequestHandle = (item) => {
+    set(ref(database, `accept_request/${item.id}`), {
+      ...item,
+    })
+      .then(() => {
+        toast.success("Accept Friend Request");
+      })
+      .then(() => {
+        remove(ref(database, "friend_request_list/" + item.id));
+      });
+  };
 
   return (
     <>
@@ -87,8 +110,7 @@ const Home = () => {
         <div className="w-4/12 h-full bg-primary/10">
           <div className="w-full h-screen px-4 py-4">
             <div className="w-full h-6/12">
-
-              {/* Send Friend Request */}
+              {/* // ============= Send friend request list ============= // */}
               <div className="flex justify-between items-center pb-4 border-b-2 border-primary/20">
                 <div>
                   <h2 className="text-lg font-medium text-gray-800">
@@ -100,9 +122,9 @@ const Home = () => {
                 </div>
               </div>
 
-              {/* user proflie list */}
+              {/* // ============= User profile ============= // */}
               <div className="w-full h-[80%] mt-4 flex flex-col gap-2 overflow-y-scroll">
-                {userData.map((item, index) => (
+                {allUsers.map((item, index) => (
                   <UserProfle
                     onclick={() => sendRequestHandle(item)}
                     key={index}
@@ -114,7 +136,7 @@ const Home = () => {
             </div>
 
             <div className="w-full h-6/12">
-              {/* Accept Friend Request */}
+              {/* // ============= Accept friend request list ============= // */}
               <div className="flex justify-between items-center pb-4 border-b-2 border-primary/20 mt-2">
                 <div>
                   <h2 className="text-lg font-medium text-gray-800">
@@ -126,13 +148,13 @@ const Home = () => {
                 </div>
               </div>
 
-              {/* user proflie list */}
+              {/* // ============= User profile ============= // */}
               <div className="w-full h-[80%] mt-4 flex flex-col gap-2 overflow-y-scroll">
-
-                {requestData.map((item, index) => (
+                {sendRequest.map((item, index) => (
                   <UserProfle
                     key={index}
                     btnText={"Accept"}
+                    onclick={() => acceptRequestHandle(item)}
                     userName={item.senderName}
                   />
                 ))}
@@ -140,6 +162,9 @@ const Home = () => {
             </div>
           </div>
         </div>
+
+        {/* // ============= Toast container ============= // */}
+        <ToastContainer />
       </div>
     </>
   );
